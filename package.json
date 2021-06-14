@@ -1,7 +1,6 @@
 {
   "name": "sotdl_api_v2",
   "version": "2",
-  "main": "src/server.ts",
   "license": "MIT",
   "dependencies": {
     "@vercel/node": "^1.11.0",
