@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 
-const client = new MongoClient(process.env.MONGO_URI, {
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -10,10 +11,11 @@ export async function fetchCollection(collectionName: string) {
     await client.connect();
     const database = client.db("sotdl");
     const collection = database.collection(collectionName);
+    const data = await collection.find({}).toArray();
 
-    return collection;
+    return data;
   } catch (e) {
-    console.error(e);
+    throw e;
   } finally {
     await client.close();
   }
