@@ -8,10 +8,8 @@
     "mongodb": "^3.6.9"
   },
   "scripts": {
-    "start": "node --inspect=5858 -r ts-node/register ./src/server.ts",
-    "dev": "nodemon",
-    "build": "tsc",
-    "script": "cd src/scripts && ts-node"
+    "run_dev": "tsc && vercel dev",
+    "build": "rm -rf dist && tsc"
   },
   "devDependencies": {
     "@types/express": "^4.17.12",
