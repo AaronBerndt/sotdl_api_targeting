@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectID } from "mongodb";
 
 let cachedDb = null;
 
@@ -47,10 +47,44 @@ export async function insertIntoCollection(
 
     const database = await connectToDatabase();
     const collection = database.collection(collectionName);
-    console.log(newDocuments);
     collection.insertMany(newDocuments, { ordered: true });
 
     return { message: `Sucessfully Added new documents into ${collection}` };
+  } catch (e) {
+    throw e;
+  }
+}
+
+export async function updateCollection(
+  collectionName: string,
+  documentToUpdate: any,
+  filter: any
+) {
+  try {
+    if (uri === undefined) {
+      throw "URI is undefined";
+    }
+    if (documentToUpdate === undefined) {
+      throw "documentToUpdate is undefined";
+    }
+
+    const database = await connectToDatabase();
+    const collection = database.collection(collectionName);
+    const { _id, ...rest } = documentToUpdate;
+
+    collection.updateOne(
+      filter,
+      {
+        $set: {
+          ...rest,
+        },
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    return { message: `Sucessfully updated document in ${collection}` };
   } catch (e) {
     throw e;
   }
