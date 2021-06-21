@@ -9,6 +9,7 @@ export default async (request: VercelRequest, response: VercelResponse) => {
     });
     response.status(200).send(data);
   } catch (e) {
+    console.log(e);
     response.status(504).send(e);
   }
 };
