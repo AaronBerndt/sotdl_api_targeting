@@ -7,6 +7,9 @@ const cors = microCors();
 
 const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
+    if (request.method === "OPTIONS") {
+      return response.status(200).end();
+    }
     const { documents } = request.body.data;
     const data = await updateCollection("paths", documents, {
       name: documents.name,
