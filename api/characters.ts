@@ -1,7 +1,9 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchCollection } from "../utilities/MongoUtils";
+import microCors from "micro-cors";
+const cors = microCors();
 
-export default async (request: VercelRequest, response: VercelResponse) => {
+const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
     const data = await fetchCollection("characters");
     response.status(200).send(data);
@@ -9,3 +11,4 @@ export default async (request: VercelRequest, response: VercelResponse) => {
     response.status(504).send(e);
   }
 };
+export default cors(handler);
