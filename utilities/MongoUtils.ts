@@ -47,7 +47,7 @@ export async function insertIntoCollection(
 
     const database = await connectToDatabase();
     const collection = database.collection(collectionName);
-    collection.insertMany(newDocuments, { ordered: true });
+    await collection.insertMany(newDocuments, { ordered: true });
 
     return { message: `Sucessfully Added new documents into ${collection}` };
   } catch (e) {
@@ -72,7 +72,10 @@ export async function updateCollection(
     const collection = database.collection(collectionName);
     const { _id, ...rest } = documentToUpdate;
 
-    collection.updateOne(
+    console.log(
+      `Attemping to update ${documentToUpdate.name} in ${collectionName}`
+    );
+    await collection.updateOne(
       filter,
       {
         $set: {
@@ -84,7 +87,11 @@ export async function updateCollection(
       }
     );
 
-    return { message: `Sucessfully updated document in ${collection}` };
+    console.log(
+      `Sucessfully updated ${documentToUpdate.name} in ${collectionName}`
+    );
+
+    return { message: `Sucessfully updated document in ${collectionName}` };
   } catch (e) {
     throw e;
   }
