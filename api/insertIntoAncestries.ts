@@ -3,9 +3,9 @@ import { insertIntoCollection } from "../utilities/MongoUtils";
 
 export default async (request: VercelRequest, response: VercelResponse) => {
   try {
-    const { documents } = request.query;
-    const data = await insertIntoCollection("characters", documents);
-    response.status(200).send(documents);
+    const { documents } = request.body;
+    const data = await insertIntoCollection("ancestries", documents);
+    response.status(200).send(data);
   } catch (e) {
     response.status(504).send(e);
   }

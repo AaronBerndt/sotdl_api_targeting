@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { fetchCollection, insertIntoCollection } from "../utilities/MongoUtils";
+import { insertIntoCollection } from "../utilities/MongoUtils";
 
 export default async (request: VercelRequest, response: VercelResponse) => {
   try {
