@@ -1,3 +1,4 @@
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import { insertIntoCollection } from "../utilities/MongoUtils";
 import microCors from "micro-cors";
 
