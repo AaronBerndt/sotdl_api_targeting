@@ -1,12 +1,19 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
 import { insertIntoCollection } from "../utilities/MongoUtils";
+import microCors from "micro-cors";
 
-export default async (request: VercelRequest, response: VercelResponse) => {
+const cors = microCors();
+
+const handler = async (request: VercelRequest, response: VercelResponse) => {
   try {
-    const { documents } = request.query;
+    if (request.method === "OPTIONS") {
+      return response.status(200).end();
+    }
+    const { documents } = request.body.data;
     const data = await insertIntoCollection("characters", documents);
-    response.status(200).send(documents);
+    response.status(200).send(data);
   } catch (e) {
     response.status(504).send(e);
   }
 };
+
+export default cors(handler);
