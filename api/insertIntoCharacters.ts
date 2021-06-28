@@ -34,7 +34,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     const newCharacterData: Character = {
       name: documents.name,
-      description: "",
       level: documents.level,
       ancestry: documents.ancestry,
       novicePath: documents.novicePath,
@@ -72,8 +71,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         afflictions: [],
       },
     };
-    // const data = await insertIntoCollection("characters", documents);
-    console.log(newCharacterData);
+    await insertIntoCollection("characters", newCharacterData);
     response.status(200).send(newCharacterData);
   } catch (e) {
     console.log(e);

@@ -43,7 +43,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     const newCharacterData: Character = {
       name: "",
-      description: "",
       level: level,
       ancestry: "",
       novicePath: level <= 1 ? "" : "",

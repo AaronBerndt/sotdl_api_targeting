@@ -1,6 +1,5 @@
 export type Character = {
   name: string;
-  description: string;
   level: number;
   ancestry: string;
   novicePath: string;
