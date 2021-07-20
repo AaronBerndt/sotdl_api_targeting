@@ -31,7 +31,7 @@ export async function insertIntoCollection(
 
     const database = await connectToDatabase();
     const collection = database.collection(collectionName);
-    await collection.insertMany(newDocuments, { ordered: true });
+    await collection.insertMany([newDocuments], { ordered: true });
 
     return { message: `Sucessfully Added new documents into ${collection}` };
   } catch (e) {
