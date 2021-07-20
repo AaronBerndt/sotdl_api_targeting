@@ -35,6 +35,7 @@ export async function insertIntoCollection(
 
     return { message: `Sucessfully Added new documents into ${collection}` };
   } catch (e) {
+    console.error(e);
     throw e;
   }
 }
