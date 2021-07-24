@@ -42,7 +42,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       characteristics: [
         ...filterByLevel(ancestry.characteristics),
         ...documents.characteristics,
-      ],
+      ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
       talents: [
         ...filterByLevel(ancestry.talents),
         ...filterByLevel(filterByPathName(documents.novicePath)),
@@ -61,8 +61,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         ),
         currency: documents.currency,
       },
-      languages: ["Common", "Dwarf"],
-      professions: [{ name: "Guard", type: "Martial" }],
+      languages: [],
+      professions: [],
       details: [],
       characterState: {
         damage: 0,
@@ -71,6 +71,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         afflictions: [],
       },
     };
+
     await insertIntoCollection("characters", newCharacterData);
     response.status(200).send(newCharacterData);
   } catch (e) {
