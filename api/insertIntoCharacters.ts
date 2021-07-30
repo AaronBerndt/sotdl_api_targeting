@@ -29,8 +29,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const filterByLevel = (array) =>
       array.filter(({ level }) => level <= documents.level);
 
-    const filterByPathName = (name: string) =>
-      name !== "" ? find(paths, { name }).talents : [];
+    const filterByPathName = (name: string, key: string) =>
+      name !== "" ? find(paths, { name })[key] : [];
 
     const newCharacterData: Character = {
       name: documents.name,
@@ -41,13 +41,22 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       masterPath: documents.masterPath,
       characteristics: [
         ...filterByLevel(ancestry.characteristics),
+        ...filterByLevel(
+          filterByPathName(documents.novicePath, "characteristics")
+        ),
+        ...filterByLevel(
+          filterByPathName(documents.expertPath, "characteristics")
+        ),
+        ...filterByLevel(
+          filterByPathName(documents.masterPath, "characteristics")
+        ),
         ...documents.characteristics,
       ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
       talents: [
         ...filterByLevel(ancestry.talents),
-        ...filterByLevel(filterByPathName(documents.novicePath)),
-        ...filterByLevel(filterByPathName(documents.expertPath)),
-        ...filterByLevel(filterByPathName(documents.masterPath)),
+        ...filterByLevel(filterByPathName(documents.novicePath, "talents")),
+        ...filterByLevel(filterByPathName(documents.expertPath, "talents")),
+        ...filterByLevel(filterByPathName(documents.masterPath, "talents")),
       ],
       spells: documents.spells,
       traditions: documents.traditions,
