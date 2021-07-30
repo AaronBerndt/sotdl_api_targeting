@@ -81,9 +81,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       },
     };
 
-    console.log(newCharacterData);
-    // await insertIntoCollection("characters", newCharacterData);
-    // response.status(200).send(newCharacterData);
+    await insertIntoCollection("characters", newCharacterData);
+    response.status(200).send(newCharacterData);
   } catch (e) {
     console.log(e);
     response.status(504).send(e);
