@@ -16,16 +16,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const { documents } = request.body.data;
     console.log(documents);
 
-    const {
-      data: [ancestry],
-    } = await axios(
-      `https://sotdl-api-fetch.vercel.app/api/ancestries?name=${documents.ancestry}`
-    );
-
-    const { data: paths } = await axios(
-      `https://sotdl-api-fetch.vercel.app/api/paths`
-    );
-
     const newCharacterData: Character = {
       name: documents.name,
       level: documents.level,
