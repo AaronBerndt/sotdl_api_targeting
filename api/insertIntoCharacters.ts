@@ -2,8 +2,6 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { insertIntoCollection } from "../utilities/MongoUtils";
 import { Character } from "../types";
 import microCors from "micro-cors";
-import axios from "axios";
-import { find } from "lodash";
 
 const cors = microCors();
 
