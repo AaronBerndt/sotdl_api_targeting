@@ -69,6 +69,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       languages: ["Common", "Dwarf"],
       professions: [{ name: "Guard", type: "Martial" }],
       details: [],
+      choices: [],
       characterState: {
         damage: 0,
         expended: [],
