@@ -40,6 +40,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       languages: [],
       professions: [],
       details: [],
+      choices: documents.choices,
       characterState: {
         damage: 0,
         expended: [],
