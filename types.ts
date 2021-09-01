@@ -14,9 +14,12 @@ export type Character = {
   professions: Professions;
   characterState: CharacterState;
   details: Details;
+  choices: Choices;
 };
 
 export type Characters = Character[];
+export type Choices = Choice[];
+export type Choice = { name: string; value: string; level: number };
 
 export type Connditonal = {
   name: string;
