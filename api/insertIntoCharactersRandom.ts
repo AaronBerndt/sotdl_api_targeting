@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { insertIntoCollection } from "../utilities/MongoUtils";
-import { Character } from "../types";
+import { Character, Characteristic } from "../types";
 import microCors from "micro-cors";
 import axios from "axios";
 import { random, shuffle, take } from "lodash";
@@ -13,7 +13,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
-    const { level } = request.body;
+    const { level, options } = request.body;
 
     const { data: ancestries } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/ancestries`
@@ -21,10 +21,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     const { data: paths } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/paths`
-    );
-
-    const { data: items } = await axios(
-      `https://sotdl-api-fetch.vercel.app/api/items`
     );
 
     const pickRandomAncestry = () => {
@@ -41,6 +37,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return path;
     };
 
+    const statList = ["Strength", "Agility", "Will", "Intellect"];
     const ancestry = pickRandomAncestry();
     const novicePath =
       level >= 1 && ancestry !== ("Jotun" || "Centaur")
@@ -51,8 +48,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const masterPath = level >= 7 ? pickRandomPath("Master") : "";
 
     const pickRandomCharacteristics = (level: number) => {
-      const statList = ["Strength", "Agility", "Will", "Intellect"];
-
       const createRandomCharacteristicsList = (amount, atLevel) =>
         take(shuffle(statList), amount).map((characteristic) => ({
           id: `${characteristic}-${atLevel}`,
@@ -70,6 +65,33 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
       return [...noviceList, ...expertList, ...masterList];
     };
+
+    const rollForRandomCharacteristics = () => {
+      const characteristics = ancestry.characteristics.filter(
+        ({ level, name }) => level === 0 && statList.includes(name)
+      );
+
+      console.log(characteristics);
+
+      const randomCharacteristics = characteristics.map(
+        (characteristic: Characteristic) => {
+          const ancestryModifter = characteristic.value - 2;
+          const diceRoll = random(1, 3);
+          const newCharacteristic = ancestryModifter + diceRoll;
+          return {
+            name: characteristic.name,
+            value: newCharacteristic - characteristic.value,
+          };
+        }
+      );
+
+      return randomCharacteristics.filter(({ value }) => value !== 0);
+    };
+
+    console.log(options);
+    const overrides = options?.rollForCharacteristics
+      ? rollForRandomCharacteristics()
+      : [];
 
     const newCharacterData: any = {
       name: "",
@@ -100,7 +122,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       characterState: {
         damage: 0,
         expended: [],
-        overrides: [],
+        overrides,
         afflictions: [],
       },
     };
