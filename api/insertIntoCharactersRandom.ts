@@ -3,7 +3,7 @@ import { insertIntoCollection } from "../utilities/MongoUtils";
 import { Character } from "../types";
 import microCors from "micro-cors";
 import axios from "axios";
-import { shuffle, take } from "lodash";
+import { random, shuffle, take } from "lodash";
 
 const cors = microCors();
 
@@ -12,8 +12,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
-
-    const getRandomInt = (max) => Math.floor(Math.random() * max);
 
     const { level } = request.body;
 
@@ -25,19 +23,32 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       `https://sotdl-api-fetch.vercel.app/api/paths`
     );
 
-    const pickRandomAncestry = () => {
-      const { name } = ancestries[getRandomInt(ancestries.length + 1)];
+    const { data: items } = await axios(
+      `https://sotdl-api-fetch.vercel.app/api/items`
+    );
 
-      return name;
+    const pickRandomAncestry = () => {
+      const ancestry = ancestries[random(ancestries.length)];
+
+      return ancestry;
     };
 
     const pickRandomPath = (pathType: string) => {
       const filteredPaths = paths.filter(({ type }) => type === pathType);
 
-      const { name } = filteredPaths[getRandomInt(filteredPaths.length + 1)];
+      const path = filteredPaths[random(filteredPaths.length)];
 
-      return name;
+      return path;
     };
+
+    const ancestry = pickRandomAncestry();
+    const novicePath =
+      level >= 1 && ancestry !== ("Jotun" || "Centaur")
+        ? pickRandomPath("Novice")
+        : "";
+
+    const expertPath = level >= 3 ? pickRandomPath("Expert") : "";
+    const masterPath = level >= 7 ? pickRandomPath("Master") : "";
 
     const pickRandomCharacteristics = (level: number) => {
       const statList = ["Strength", "Agility", "Will", "Intellect"];
@@ -53,24 +64,20 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       const noviceList =
         level >= 1 ? createRandomCharacteristicsList(2, 1) : [];
       const expertList =
-        level >= 1 ? createRandomCharacteristicsList(2, 3) : [];
+        level >= 3 ? createRandomCharacteristicsList(2, 3) : [];
       const masterList =
-        level >= 1 ? createRandomCharacteristicsList(3, 7) : [];
+        level >= 7 ? createRandomCharacteristicsList(3, 7) : [];
 
       return [...noviceList, ...expertList, ...masterList];
     };
 
-    const ancestry = pickRandomAncestry();
     const newCharacterData: any = {
       name: "",
       level: level,
-      ancestry,
-      novicePath:
-        level >= 1 && ancestry !== ("Jotun" || "Centaur")
-          ? pickRandomPath("Novice")
-          : "",
-      expertPath: level >= 3 ? pickRandomPath("Expert") : "",
-      masterPath: level >= 7 ? pickRandomPath("Master") : "",
+      ancestry: ancestry.name,
+      novicePath: novicePath?.name ? novicePath?.name : novicePath,
+      expertPath: expertPath?.name ? expertPath?.name : expertPath,
+      masterPath: masterPath?.name ? masterPath?.name : masterPath,
       characteristics: pickRandomCharacteristics(level),
       talents: [],
       spells: [],
