@@ -1,9 +1,10 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { insertIntoCollection } from "../utilities/MongoUtils";
-import { Character, Characteristic } from "../types";
+import { Character, Characteristic, Talent } from "../types";
 import microCors from "micro-cors";
 import axios from "axios";
-import { random, shuffle, take } from "lodash";
+import { find, random, shuffle, take } from "lodash";
+import traditionList from "./constants/traditionList";
 
 const cors = microCors();
 
@@ -40,38 +41,53 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const statList = ["Strength", "Agility", "Will", "Intellect"];
     const ancestry = pickRandomAncestry();
     const novicePath =
-      level >= 1 && ancestry !== ("Jotun" || "Centaur")
+      level >= 1 && !find(ancestry.talents, { name: "Powerful Ancestry" })
         ? pickRandomPath("Novice")
         : "";
 
     const expertPath = level >= 3 ? pickRandomPath("Expert") : "";
     const masterPath = level >= 7 ? pickRandomPath("Master") : "";
+    let pastLife: any = "";
 
     const pickRandomCharacteristics = (level: number) => {
-      const createRandomCharacteristicsList = (amount, atLevel) =>
+      const createRandomCharacteristicsList = (amount, atLevel, value) =>
         take(shuffle(statList), amount).map((characteristic) => ({
           id: `${characteristic}-${atLevel}`,
           name: characteristic,
-          value: 1,
+          value,
           level: atLevel,
         }));
 
-      const noviceList =
-        level >= 1 ? createRandomCharacteristicsList(2, 1) : [];
-      const expertList =
-        level >= 3 ? createRandomCharacteristicsList(2, 3) : [];
-      const masterList =
-        level >= 7 ? createRandomCharacteristicsList(3, 7) : [];
+      const regex = /Increase (.*) by (.*)/gm;
+      const hasAncestryChoice = find(ancestry.talents, {
+        name: "Attributes Increase",
+      });
 
-      return [...noviceList, ...expertList, ...masterList];
+      const ancestryChoice = hasAncestryChoice
+        ? createRandomCharacteristicsList(
+            1,
+            0,
+            parseInt(regex.exec(hasAncestryChoice.description)[2])
+          )
+        : [];
+
+      const noviceList =
+        level >= 1 ? createRandomCharacteristicsList(2, 1, 1) : [];
+      const expertList =
+        level >= 3 ? createRandomCharacteristicsList(2, 3, 1) : [];
+      const masterList =
+        level >= 7 ? createRandomCharacteristicsList(3, 7, 1) : [];
+
+      return [...ancestryChoice, ...noviceList, ...expertList, ...masterList];
     };
 
     const rollForRandomCharacteristics = () => {
-      const characteristics = ancestry.characteristics.filter(
+      const characteristics = (pastLife !== ""
+        ? pastLife
+        : ancestry
+      ).characteristics.filter(
         ({ level, name }) => level === 0 && statList.includes(name)
       );
-
-      console.log(characteristics);
 
       const randomCharacteristics = characteristics.map(
         (characteristic: Characteristic) => {
@@ -88,7 +104,71 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return randomCharacteristics.filter(({ value }) => value !== 0);
     };
 
-    console.log(options);
+    const pickRandomChoices = () => {
+      const talentsList = [
+        ...ancestry?.talents,
+        ...(novicePath !== "" ? novicePath?.talents : []),
+        ...(expertPath !== "" ? expertPath?.talents : []),
+        ...(masterPath !== "" ? masterPath?.talents : []),
+      ]
+        .filter(
+          ({ name, description, level }: Talent) =>
+            name === "Attributes Increase" ||
+            description.includes("Choose") ||
+            description.includes("Pick") ||
+            level === 4
+        )
+        .map((talent: Talent) => {
+          if (
+            ["Faith", "Tradition Focus", "Knack", "Discipline"].includes(
+              talent.name
+            )
+          ) {
+            const choiceType = {
+              faith: "faiths",
+              knack: "knacks",
+              discipline: "disciplines",
+            };
+
+            const choice =
+              talent.name === "Tradition Focus"
+                ? traditionList[random(traditionList.length)]
+                : novicePath[choiceType[talent.name.toLowerCase()]][
+                    random(
+                      novicePath[choiceType[talent.name.toLowerCase()]].length
+                    )
+                  ];
+
+            return {
+              name: talent.name,
+              value: choice.name,
+              level: talent.level,
+            };
+          }
+          if (talent.name === "Past Life") {
+            const filteredAncestryList = ancestries.filter(
+              ({ talents }: any) =>
+                !talents.map(({ name }: Talent) => name).includes("Past Life")
+            );
+
+            pastLife =
+              filteredAncestryList[random(filteredAncestryList.length)];
+
+            return {
+              name: talent.name,
+              value: pastLife?.name,
+              level: talent.level,
+            };
+          } else {
+            return talent;
+          }
+        });
+
+      return talentsList;
+    };
+
+    const choices = pickRandomChoices();
+
     const overrides = options?.rollForCharacteristics
       ? rollForRandomCharacteristics()
       : [];
@@ -118,7 +198,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       languages: ["Common"],
       professions: [],
       details: [],
-      choices: [],
+      choices,
       characterState: {
         damage: 0,
         expended: [],
@@ -127,7 +207,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       },
     };
     // const data = await insertIntoCollection("characters", documents);
-    console.log(newCharacterData);
     response.status(200).send(newCharacterData);
   } catch (e) {
     console.log(e);
