@@ -14,7 +14,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
-    const { level, options } = request.body;
+    const { level, options } = request.body.data;
 
     const { data: ancestries } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/ancestries`
