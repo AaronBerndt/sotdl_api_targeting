@@ -14,7 +14,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
-    const { level, options } = request.body;
+    const { level, options } = request.body.data;
 
     const { data: ancestries } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/ancestries`
@@ -23,6 +23,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const { data: paths } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/paths`
     );
+
+    const { data } = await axios.get(
+      "https://api.fungenerators.com/name/generate?category=ninja&limit=10"
+    );
+    console.log(data);
 
     const pickRandomAncestry = () => {
       const ancestry = ancestries[random(ancestries.length)];
@@ -206,8 +211,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         afflictions: [],
       },
     };
-    const data = await insertIntoCollection("characters", newCharacterData);
-    response.status(200).send(data);
+    // const data = await insertIntoCollection("characters", newCharacterData);
+    response.status(200).send(newCharacterData);
   } catch (e) {
     console.log(e);
     response.status(504).send(e);
