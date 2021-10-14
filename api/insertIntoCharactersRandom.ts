@@ -25,7 +25,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     );
 
     const pickRandomAncestry = () => {
-      const ancestry = ancestries[random(ancestries.length)];
+      const ancestry = ancestries[random(0, ancestries.length - 1)];
 
       return ancestry;
     };
@@ -33,7 +33,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const pickRandomPath = (pathType: string) => {
       const filteredPaths = paths.filter(({ type }) => type === pathType);
 
-      const path = filteredPaths[random(filteredPaths.length)];
+      const path = filteredPaths[random(0, filteredPaths.length - 1)];
 
       return path;
     };
@@ -95,7 +95,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           const diceRoll = random(1, 3);
           const newCharacteristic = ancestryModifter + diceRoll;
           return {
-            name: characteristic.name,
+            name: characteristic?.name,
             value: newCharacteristic - characteristic.value,
           };
         }
@@ -122,27 +122,28 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           if (
             ["Faith", "Tradition Focus", "Knack", "Discipline"].includes(
               talent.name
-            )
+            ) &&
+            novicePath.name !== "Adept"
           ) {
             const choiceType = {
+              "tradition focus": "focuses",
               faith: "faiths",
               knack: "knacks",
               discipline: "disciplines",
             };
 
             const choice =
-              talent.name === "Tradition Focus"
-                ? traditionList[random(traditionList.length)]
-                : novicePath[choiceType[talent.name.toLowerCase()]][
-                    random(
-                      novicePath[choiceType[talent.name.toLowerCase()]].length
-                    )
-                  ];
+              novicePath[choiceType[talent?.name.toLowerCase()]][
+                random(
+                  0,
+                  novicePath[choiceType[talent?.name.toLowerCase()]].length - 1
+                )
+              ];
 
             return {
-              name: talent.name,
-              value: choice.name,
-              level: talent.level,
+              name: talent?.name,
+              value: choice?.name !== null ? choice?.name : "None",
+              level: talent?.level,
             };
           }
           if (talent.name === "Past Life") {
@@ -152,7 +153,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
             );
 
             pastLife =
-              filteredAncestryList[random(filteredAncestryList.length)];
+              filteredAncestryList[random(0, filteredAncestryList.length - 1)];
 
             return {
               name: talent.name,
@@ -176,7 +177,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const newCharacterData: any = {
       name: "",
       level: level,
-      ancestry: ancestry.name,
+      ancestry: ancestry?.name,
       novicePath: novicePath?.name ? novicePath?.name : novicePath,
       expertPath: expertPath?.name ? expertPath?.name : expertPath,
       masterPath: masterPath?.name ? masterPath?.name : masterPath,
@@ -206,8 +207,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         afflictions: [],
       },
     };
+
     const data = await insertIntoCollection("characters", newCharacterData);
-    response.status(200).send(data);
+    response.status(200).send(newCharacterData);
   } catch (e) {
     console.log(e);
     response.status(504).send(e);
