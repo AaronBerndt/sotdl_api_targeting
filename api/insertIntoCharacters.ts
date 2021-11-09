@@ -44,6 +44,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       characterState: {
         damage: 0,
         expended: [],
+        temporaryEffects: [],
         overrides: documents.overrides,
         afflictions: [],
       },
