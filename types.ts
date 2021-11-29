@@ -28,11 +28,17 @@ export type Connditonal = {
   isEnabled: boolean;
 };
 
+type EquipedItem = {
+  id: string;
+  name: string;
+};
+
 export type CharacterState = {
   damage: number;
   expended: Expend[];
   overrides: Override[];
   temporaryEffects: string[];
+  equiped: EquipedItem[];
   afflictions: CurrentAffliction[];
 };
 export type Profession = {

@@ -28,13 +28,15 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       spells: documents.spells,
       traditions: documents.traditions,
       items: {
-        weapons: documents.items.filter(
-          ({ itemType }) => itemType === "weapon"
-        ),
-        armor: documents.items.filter(({ itemType }) => itemType === "armor"),
-        otherItems: documents.items.filter(
-          ({ itemType }) => itemType === "basic"
-        ),
+        weapons: documents.items
+          .filter(({ itemType }) => itemType === "weapon")
+          .map(({ name }) => name),
+        armor: documents.items
+          .filter(({ itemType }) => itemType === "armor")
+          .map(({ name }) => name),
+        otherItems: documents.items
+          .filter(({ itemType }) => itemType === "basic")
+          .map(({ name }) => name),
         currency: documents.currency,
       },
       languages: [],
@@ -45,6 +47,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         damage: 0,
         expended: [],
         temporaryEffects: [],
+        equiped: [],
         overrides: documents.overrides,
         afflictions: [],
       },
