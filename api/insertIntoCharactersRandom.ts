@@ -5,6 +5,7 @@ import microCors from "micro-cors";
 import axios from "axios";
 import { find, random, shuffle, take } from "lodash";
 import traditionList from "./constants/traditionList";
+import { ObjectId } from "mongodb";
 
 const cors = microCors();
 
@@ -82,9 +83,8 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     };
 
     const rollForRandomCharacteristics = () => {
-      const characteristics = (pastLife !== ""
-        ? pastLife
-        : ancestry
+      const characteristics = (
+        pastLife !== "" ? pastLife : ancestry
       ).characteristics.filter(
         ({ level, name }) => level === 0 && statList.includes(name)
       );
@@ -186,7 +186,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       spells: [],
       traditions: [],
       items: {
-        weapons: [],
+        weapons: ["Unarmed Strike"],
         armor: [],
         otherItems: [],
         currency: {
@@ -205,7 +205,13 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       characterState: {
         damage: 0,
         injured: false,
-        temporaryEffects: [],
+        temporaryEffects: [
+          {
+            _id: new ObjectId(),
+            name: "Unarmed Strike",
+            equipped: true,
+          },
+        ],
         equipped: [],
         expended: [],
         overrides,

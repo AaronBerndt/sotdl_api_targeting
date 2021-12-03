@@ -21,16 +21,19 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       novicePath: documents.novicePath,
       expertPath: documents.expertPath,
       masterPath: documents.masterPath,
-      characteristics: [
-        ...documents.characteristics,
-      ].map(({ value, ...rest }) => ({ ...rest, value: Number(value) })),
+      characteristics: [...documents.characteristics].map(
+        ({ value, ...rest }) => ({ ...rest, value: Number(value) })
+      ),
       talents: [],
       spells: documents.spells,
       traditions: documents.traditions,
       items: {
-        weapons: documents.items
-          .filter(({ itemType }) => itemType === "weapon")
-          .map(({ name }) => name),
+        weapons: [
+          "Unarmed Strike",
+          documents.items
+            .filter(({ itemType }) => itemType === "weapon")
+            .map(({ name }) => name),
+        ],
         armor: documents.items
           .filter(({ itemType }) => itemType === "armor")
           .map(({ name }) => name),
@@ -48,13 +51,20 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         injured: false,
         expended: [],
         temporaryEffects: [],
-        equipped: documents.items
-          .filter(({ itemType }) => itemType !== "basic")
-          .map((item: Item) => ({
+        equipped: [
+          {
             _id: new ObjectId(),
-            name: item.name,
+            name: "Unarmed Strike",
             equipped: true,
-          })),
+          },
+          ...documents.items
+            .filter(({ itemType }) => itemType !== "basic")
+            .map((item: Item) => ({
+              _id: new ObjectId(),
+              name: item.name,
+              equipped: true,
+            })),
+        ],
         overrides: documents.overrides,
         afflictions: [],
       },
