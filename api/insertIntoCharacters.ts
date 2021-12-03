@@ -48,12 +48,12 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         injured: false,
         expended: [],
         temporaryEffects: [],
-        equiped: documents.items
+        equipped: documents.items
           .filter(({ itemType }) => itemType !== "basic")
           .map((item: Item) => ({
             _id: new ObjectId(),
             name: item.name,
-            equiped: true,
+            equipped: true,
           })),
         overrides: documents.overrides,
         afflictions: [],

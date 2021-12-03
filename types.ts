@@ -38,7 +38,7 @@ export type CharacterState = {
   expended: Expend[];
   overrides: Override[];
   temporaryEffects: string[];
-  equiped: EquipedItem[];
+  equipped: EquipedItem[];
   injured: boolean;
   afflictions: CurrentAffliction[];
 };

@@ -206,6 +206,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         damage: 0,
         injured: false,
         temporaryEffects: [],
+        equipped: [],
         expended: [],
         overrides,
         afflictions: [],
