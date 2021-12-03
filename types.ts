@@ -39,6 +39,7 @@ export type CharacterState = {
   overrides: Override[];
   temporaryEffects: string[];
   equiped: EquipedItem[];
+  injured: boolean;
   afflictions: CurrentAffliction[];
 };
 export type Profession = {

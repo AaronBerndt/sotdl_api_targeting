@@ -1,7 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { insertIntoCollection } from "../utilities/MongoUtils";
-import { Character } from "../types";
+import { Character, Item } from "../types";
 import microCors from "micro-cors";
+import { ObjectId, ObjectID } from "mongodb";
 
 const cors = microCors();
 
@@ -12,7 +13,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     }
 
     const { documents } = request.body.data;
-    console.log(documents);
 
     const newCharacterData: Character = {
       name: documents.name,
@@ -45,9 +45,16 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       choices: documents.choices,
       characterState: {
         damage: 0,
+        injured: false,
         expended: [],
         temporaryEffects: [],
-        equiped: [],
+        equiped: documents.items
+          .filter(({ itemType }) => itemType !== "basic")
+          .map((item: Item) => ({
+            _id: new ObjectId(),
+            name: item.name,
+            equiped: true,
+          })),
         overrides: documents.overrides,
         afflictions: [],
       },

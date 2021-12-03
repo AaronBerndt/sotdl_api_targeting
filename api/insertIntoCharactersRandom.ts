@@ -200,8 +200,12 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       professions: [],
       details: [],
       choices,
+
+      temporaryEffects: [],
       characterState: {
         damage: 0,
+        injured: false,
+        temporaryEffects: [],
         expended: [],
         overrides,
         afflictions: [],
