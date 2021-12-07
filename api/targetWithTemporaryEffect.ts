@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import microCors from "micro-cors";
 import { insertIntoCollection } from "../utilities/MongoUtils";
+import microCors from "micro-cors";
 
 const cors = microCors();
 
@@ -9,14 +9,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
-    const data = await insertIntoCollection("combat", [
-      {
-        combatants: [],
-        turn: 0,
-        currentRound: "Play Fast",
-      },
-    ]);
-    response.status(200).send(data);
+    const { targetArray, abilityName } = request.body.data;
+
+    response.status(200).send("Made attack against Targets");
   } catch (e) {
     response.status(504).send(e);
   }

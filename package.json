@@ -1,11 +1,10 @@
 {
-  "name": "sotdl_api_insert",
+  "name": "sotdl_api_targeting",
   "version": "2",
   "license": "MIT",
   "dependencies": {
     "@types/jest": "^26.0.23",
     "@vercel/node": "^1.11.0",
-    "antd": "^4.16.3",
     "axios": "^0.21.1",
     "express": "^4.17.1",
     "jest": "^27.0.5",
