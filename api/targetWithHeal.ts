@@ -10,10 +10,14 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
-    const { targetArray, abilityName, healingFactor } = request.body.data;
+    const { healerId, targets, healingFactor } = request.body.data;
+
+    const { data: healerData } = await axios(
+      `https://sotdl-api-fetch.vercel.app/api/characters?_id=${healerId}`
+    );
 
     const data = await Promise.all(
-      targetArray.map(async (target: string) => {
+      targets.map(async (target: string) => {
         console.log(target);
         const { data } = await axios(
           `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
@@ -28,6 +32,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         });
 
         return {
+          healer: healerData.name,
           name: data.name,
           healedAmount: healthChangeAmount,
         };

@@ -1,5 +1,7 @@
+import axios from "axios";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { insertIntoCollection } from "../utilities/MongoUtils";
+import { UPDATE_TEMPORARYEFFECTS_URL } from "../utilities/api.config";
+import { rollD20 } from "../utilities/rollDice";
 import microCors from "micro-cors";
 
 const cors = microCors();
@@ -9,10 +11,51 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
-    const { targetArray, abilityName } = request.body.data;
+    const {
+      attackerId,
+      targets,
+      attackType,
+      attackRoll,
+      attributeTarget,
+    } = request.body.data;
 
-    response.status(200).send("Made attack against Targets");
+    const { data: attackerData } = await axios(
+      `https://sotdl-api-fetch.vercel.app/api/characters?_id=${attackerId}`
+    );
+
+    const data = await Promise.all(
+      targets.map(async (target: string, type: "monster" | "player") => {
+        const { data } =
+          type === "player"
+            ? await axios(
+                `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
+              )
+            : await axios(
+                `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
+              );
+
+        const {
+          [attributeTarget]: attributeDefendingWith,
+        } = data.characteristics;
+
+        return {
+          attacker: attackerData.name,
+          name: data.name,
+          attackResult:
+            attackType === "challenge"
+              ? rollD20() >= 10 + (attributeDefendingWith - 10)
+                ? "Miss"
+                : "Hit"
+              : attackRoll > attributeDefendingWith
+              ? "Hit"
+              : "Miss",
+        };
+      })
+    );
+
+    response.status(200).send(data);
   } catch (e) {
+    console.log(e);
     response.status(504).send(e);
   }
 };

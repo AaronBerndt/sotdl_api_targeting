@@ -10,10 +10,18 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
-    const { targetArray, temporaryEffectName } = request.body.data;
+    const {
+      temporaryEffectGiverId,
+      targets,
+      temporaryEffectName,
+    } = request.body.data;
+
+    const { data: temporaryEffectGiverData } = await axios(
+      `https://sotdl-api-fetch.vercel.app/api/characters?_id=${temporaryEffectGiverId}`
+    );
 
     const data = await Promise.all(
-      targetArray.map(async (target: string) => {
+      targets.map(async (target: string) => {
         const { data } = await axios(
           `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
         );
@@ -25,6 +33,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         });
 
         return {
+          giver: temporaryEffectGiverData.name,
           name: data.name,
           temporaryEffectAdd: temporaryEffectName,
         };
