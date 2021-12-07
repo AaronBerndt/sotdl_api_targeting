@@ -33,7 +33,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
         });
 
         return {
-          giver: temporaryEffectGiverData.name,
+          temporaryEffectGiver: temporaryEffectGiverData.name,
           name: data.name,
           temporaryEffectAdd: temporaryEffectName,
         };
