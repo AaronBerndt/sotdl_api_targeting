@@ -14,6 +14,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     const {
       attackerId,
       targets,
+      attackName,
       attackType,
       attackRoll,
       attributeTarget,
@@ -40,6 +41,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
         return {
           attacker: attackerData.name,
+          attackName: attackName,
           name: data.name,
           attackResult:
             attackType === "challenge"
