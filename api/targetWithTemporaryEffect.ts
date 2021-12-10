@@ -10,15 +10,26 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
-    const {
-      temporaryEffectGiverId,
-      targets,
-      temporaryEffectName,
-    } = request.body.data;
+    const { temporaryEffectGiverId, targets, temporaryEffectName, duration } =
+      request.body.data;
 
     const { data: temporaryEffectGiverData } = await axios(
       `https://sotdl-api-fetch.vercel.app/api/characters?_id=${temporaryEffectGiverId}`
     );
+
+    const regex = /([1-9]) (.*)/;
+
+    const result = regex.exec(duration);
+
+    const timeValue = result[1];
+    const timeType = result[2];
+
+    const timeValueObject = {
+      minute: 6,
+      hour: 360,
+      day: 8640,
+    };
+    const totalRounds = Number(timeValue) * timeValueObject[timeType];
 
     const data = await Promise.all(
       targets.map(async (target: string) => {
@@ -36,6 +47,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           temporaryEffectGiver: temporaryEffectGiverData.name,
           name: data.name,
           temporaryEffectAdd: temporaryEffectName,
+          duration: totalRounds,
         };
       })
     );
