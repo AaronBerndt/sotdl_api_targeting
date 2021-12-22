@@ -3,6 +3,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { UPDATE_TEMPORARYEFFECTS_URL } from "../utilities/api.config";
 import { rollD20 } from "../utilities/rollDice";
 import microCors from "micro-cors";
+import { find } from "lodash";
 
 const cors = microCors();
 
@@ -28,40 +29,45 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       `https://sotdl-api-fetch.vercel.app/api/combats?_id=${attackerData.activeCombat}`
     );
 
-    console.log({
-      attackerId,
-      targets,
-      attackName,
-      attackType,
-      attackRoll,
-      attributeTarget,
-    });
     const data = await Promise.all(
       targets.map(async (target: string, type: "monster" | "player") => {
-        const { data } =
-          type === "player"
-            ? await axios(
-                `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
-              )
-            : await axios(
-                `https://sotdl-api-fetch.vercel.app/api/monsters?_id=${target}`
-              );
+        let targetData;
+        let name;
 
-        const {
-          [attributeTarget]: attributeDefendingWith,
-        } = data.characteristics;
+        if (type === "player") {
+          let { data } = await axios(
+            `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
+          );
+          targetData = data[0];
+
+          name = targetData.name;
+        } else {
+          const monster = find(currentCombat?.combatants, { _id: target });
+
+          let { data } = await axios(
+            `https://sotdl-api-fetch.vercel.app/api/monsters?_id=${monster.monsterId}`
+          );
+
+          targetData = data[0];
+          name = monster.name;
+        }
+
+        const { [attributeTarget]: attributeDefendingWith } =
+          targetData.characteristics;
 
         return {
           attacker: attackerData.name,
           attackName: attackName,
-          name: data.name,
+          name,
           attackResult:
             attackType === "challenge"
               ? rollD20() >= 10 + (attributeDefendingWith - 10)
                 ? "Miss"
                 : "Hit"
               : attackRoll > attributeDefendingWith
-              ? "Hit"
+              ? attackRoll >= 20 && attackRoll - attributeDefendingWith >= 5
+                ? "Crit"
+                : "Hit"
               : "Miss",
         };
       })
