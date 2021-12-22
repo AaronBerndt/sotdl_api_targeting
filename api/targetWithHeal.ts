@@ -17,10 +17,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     );
 
     const data = await Promise.all(
-      targets.map(async (target: string) => {
-        console.log(target);
+      targets.map(async (target: { id: string; type: string }) => {
         const { data } = await axios(
-          `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
+          `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target.id}`
         );
 
         const { HealingRate } = data.characteristics;
