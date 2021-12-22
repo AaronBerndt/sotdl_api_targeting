@@ -27,7 +27,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     const damageResult = rollDamageRoll(damageRoll);
 
-    console.log(targets);
     const data = await Promise.all(
       targets.map(async (target: { id: string; type: string }) => {
         let targetData;
