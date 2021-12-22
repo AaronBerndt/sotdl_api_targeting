@@ -24,6 +24,18 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       `https://sotdl-api-fetch.vercel.app/api/characters?_id=${attackerId}`
     );
 
+    const { data: currentCombat } = await axios(
+      `https://sotdl-api-fetch.vercel.app/api/combats?_id=${attackerData.activeCombat}`
+    );
+
+    console.log({
+      attackerId,
+      targets,
+      attackName,
+      attackType,
+      attackRoll,
+      attributeTarget,
+    });
     const data = await Promise.all(
       targets.map(async (target: string, type: "monster" | "player") => {
         const { data } =
@@ -32,7 +44,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
                 `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
               )
             : await axios(
-                `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
+                `https://sotdl-api-fetch.vercel.app/api/monsters?_id=${target}`
               );
 
         const {
