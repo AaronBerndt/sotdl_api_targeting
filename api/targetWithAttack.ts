@@ -30,19 +30,19 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     );
 
     const data = await Promise.all(
-      targets.map(async (target: string, type: "monster" | "player") => {
+      targets.map(async (target: { id: string; type: string }) => {
         let targetData;
         let name;
 
-        if (type === "player") {
+        if (target.type === "player") {
           let { data } = await axios(
-            `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
+            `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target.id}`
           );
           targetData = data[0];
 
           name = targetData.name;
         } else {
-          const monster = find(currentCombat?.combatants, { _id: target });
+          const monster = find(currentCombat?.combatants, { _id: target.id });
 
           let { data } = await axios(
             `https://sotdl-api-fetch.vercel.app/api/monsters?_id=${monster.monsterId}`

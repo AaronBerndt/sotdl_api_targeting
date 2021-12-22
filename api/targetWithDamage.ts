@@ -27,21 +27,22 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
     const damageResult = rollDamageRoll(damageRoll);
 
+    console.log(targets);
     const data = await Promise.all(
-      targets.map(async (target: string, type: "monster" | "player") => {
+      targets.map(async (target: { id: string; type: string }) => {
         let targetData;
         let name;
 
-        if (type === "player") {
+        if (target.type === "player") {
           let { data } = await axios(
-            `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target}`
+            `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target.id}`
           );
-          targetData = data[0];
+          targetData = data;
 
-          name = targetData.name;
+          name = data.name;
 
           await axios.post(UPDATE_CHARACTER_HEALTH_URL, {
-            data: { healthChangeAmount: damageResult, _id: target },
+            data: { healthChangeAmount: damageResult, _id: target.id },
           });
         } else {
           const monster = find(currentCombat?.combatants, { _id: target });
