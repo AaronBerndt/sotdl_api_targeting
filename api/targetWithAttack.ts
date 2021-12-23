@@ -1,7 +1,7 @@
 import axios from "axios";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { UPDATE_TEMPORARYEFFECTS_URL } from "../utilities/api.config";
-import { rollD20 } from "../utilities/rollDice";
+import { rollAttackRoll, rollD20 } from "../utilities/rollDice";
 import microCors from "micro-cors";
 import { find } from "lodash";
 
@@ -29,6 +29,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       `https://sotdl-api-fetch.vercel.app/api/combats?_id=${attackerData.activeCombat}`
     );
 
+    const attackResult =
+      attackType === "challenge" ? "" : rollAttackRoll(attackRoll);
+
     const data = await Promise.all(
       targets.map(async (target: { id: string; type: string }) => {
         let targetData;
@@ -38,7 +41,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           let { data } = await axios(
             `https://sotdl-api-fetch.vercel.app/api/characters?_id=${target.id}`
           );
-          targetData = data[0];
+          targetData = data;
 
           name = targetData.name;
         } else {
@@ -52,8 +55,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           name = monster.name;
         }
 
-        const { [attributeTarget]: attributeDefendingWith } =
-          targetData.characteristics;
+        const {
+          [attributeTarget]: attributeDefendingWith,
+        } = targetData.characteristics;
 
         return {
           attacker: attackerData.name,
@@ -64,9 +68,10 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
               ? rollD20() >= 10 + (attributeDefendingWith - 10)
                 ? "Miss"
                 : "Hit"
-              : attackRoll > attributeDefendingWith
-              ? attackRoll >= 20 && attackRoll - attributeDefendingWith >= 5
-                ? "Crit"
+              : Number(attackResult) > attributeDefendingWith
+              ? Number(attackResult) >= 20 &&
+                Number(attackResult) - attributeDefendingWith >= 5
+                ? "Critical Hit"
                 : "Hit"
               : "Miss",
         };
