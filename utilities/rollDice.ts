@@ -36,7 +36,11 @@ export const rollDamageRoll = (damageRoll: string) => {
     diceResult.diceTotal +
     (extraWeaponDamage ? parseInt(extraWeaponDamage) : 0);
 
-  return total;
+  return {
+    total,
+    formula: `${diceResult.diceTotal} +
+    ${extraWeaponDamage ? parseInt(extraWeaponDamage) : 0}B`,
+  };
 };
 
 export const rollAttackRoll = (attackRoll: string) => {
@@ -53,11 +57,20 @@ export const rollAttackRoll = (attackRoll: string) => {
       ? rollMutipleDice("d6", Math.abs(totalBB))
       : { diceTotal: 0, diceResultList: [], max: 0 };
 
-    console.log(modifier, isBoon, bbResult, d20RollResult);
-    console.log(
-      d20RollResult + modifier + (isBoon ? bbResult.max : -bbResult.max)
-    );
-    return d20RollResult + modifier + (isBoon ? bbResult.max : -bbResult.max);
+    const total =
+      d20RollResult + modifier + (isBoon ? bbResult.max : -bbResult.max);
+    console.log({
+      total,
+      formula: `${d20RollResult} + ${modifier} + ${
+        isBoon ? bbResult.max : -bbResult.max
+      }`,
+    });
+    return {
+      total,
+      formula: `${d20RollResult} + ${modifier} + ${
+        isBoon ? bbResult.max : -bbResult.max
+      }`,
+    };
   }
 
   return d20RollResult + Number(attackRoll);

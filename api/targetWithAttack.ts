@@ -29,7 +29,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       `https://sotdl-api-fetch.vercel.app/api/combats?_id=${attackerData.activeCombat}`
     );
 
-    const attackResult =
+    const { total, formula }: any =
       attackType === "challenge" ? "" : rollAttackRoll(attackRoll);
 
     const data = await Promise.all(
@@ -55,22 +55,24 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           name = monster.name;
         }
 
-        const {
-          [attributeTarget]: attributeDefendingWith,
-        } = targetData.characteristics;
+        const { [attributeTarget]: attributeDefendingWith } =
+          targetData.characteristics;
 
         return {
           attacker: attackerData.name,
+          attackType,
           attackName: attackName,
           name,
+          formula,
+          attackDiceResult: total,
           attackResult:
             attackType === "challenge"
               ? rollD20() >= 10 + (attributeDefendingWith - 10)
                 ? "Miss"
                 : "Hit"
-              : Number(attackResult) > attributeDefendingWith
-              ? Number(attackResult) >= 20 &&
-                Number(attackResult) - attributeDefendingWith >= 5
+              : Number(total) > attributeDefendingWith
+              ? Number(total) >= 20 &&
+                Number(total) - attributeDefendingWith >= 5
                 ? "Critical Hit"
                 : "Hit"
               : "Miss",
@@ -78,6 +80,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       })
     );
 
+    console.log(data);
     response.status(200).send(data);
   } catch (e) {
     console.log(e);
