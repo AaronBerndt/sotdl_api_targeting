@@ -80,7 +80,6 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       })
     );
 
-    console.log(data);
     response.status(200).send(data);
   } catch (e) {
     console.log(e);

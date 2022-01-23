@@ -10,7 +10,6 @@ export const rollD6 = () => rollDice(6);
 export const rollD3 = () => rollDice(3);
 
 export const rollMutipleDice = (type: string, amount: number) => {
-  console.log(amount);
   const diceResultList = [...Array(amount).keys()].map(() =>
     type === "d6" ? rollD6() : rollD3()
   );
@@ -59,19 +58,17 @@ export const rollAttackRoll = (attackRoll: string) => {
 
     const total =
       d20RollResult + modifier + (isBoon ? bbResult.max : -bbResult.max);
-    console.log({
-      total,
-      formula: `${d20RollResult} + ${modifier} + ${
-        isBoon ? bbResult.max : -bbResult.max
-      }`,
-    });
+
     return {
       total,
-      formula: `${d20RollResult} + ${modifier} + ${
+      formula: `${d20RollResult} + ${modifier}M + ${
         isBoon ? bbResult.max : -bbResult.max
-      }`,
+      }B`,
     };
   }
 
-  return d20RollResult + Number(attackRoll);
+  return {
+    formula: `${d20RollResult} + ${Number(attackRoll)}M`,
+    total: d20RollResult + Number(attackRoll),
+  };
 };
