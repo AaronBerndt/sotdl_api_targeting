@@ -38,7 +38,7 @@ export const rollDamageRoll = (damageRoll: string) => {
   return {
     total,
     formula: `${diceResult.diceTotal} +
-    ${extraWeaponDamage ? parseInt(extraWeaponDamage) : 0}B`,
+    ${extraWeaponDamage ? parseInt(extraWeaponDamage) : 0}D`,
   };
 };
 
@@ -61,14 +61,16 @@ export const rollAttackRoll = (attackRoll: string) => {
 
     return {
       total,
-      formula: `${d20RollResult} + ${modifier}M + ${
-        isBoon ? bbResult.max : -bbResult.max
-      }B`,
+      d20Result: d20RollResult,
+      modifier,
+      bbResult: isBoon ? bbResult.max : -bbResult.max,
     };
   }
 
   return {
-    formula: `${d20RollResult} + ${Number(attackRoll)}M`,
     total: d20RollResult + Number(attackRoll),
+    d20Result: d20RollResult,
+    modifier: Number(attackRoll),
+    bbResult: null,
   };
 };

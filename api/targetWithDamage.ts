@@ -41,7 +41,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           name = data.name;
 
           await axios.post(UPDATE_CHARACTER_HEALTH_URL, {
-            data: { healthChangeAmount: damageResult, _id: target.id },
+            data: { healthChangeAmount: damageResult.total, _id: target.id },
           });
         } else {
           const monster = find(currentCombat?.combatants, { _id: target });

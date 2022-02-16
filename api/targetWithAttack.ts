@@ -1,6 +1,5 @@
 import axios from "axios";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { UPDATE_TEMPORARYEFFECTS_URL } from "../utilities/api.config";
 import { rollAttackRoll, rollD20 } from "../utilities/rollDice";
 import microCors from "micro-cors";
 import { find } from "lodash";
@@ -29,7 +28,7 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       `https://sotdl-api-fetch.vercel.app/api/combats?_id=${attackerData.activeCombat}`
     );
 
-    const { total, formula }: any =
+    const { total, d20Result, modifier, bbResult }: any =
       attackType === "challenge" ? "" : rollAttackRoll(attackRoll);
 
     const data = await Promise.all(
@@ -63,7 +62,9 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           attackType,
           attackName: attackName,
           name,
-          formula,
+          d20Result,
+          modifier,
+          bbResult,
           attackDiceResult: total,
           attackResult:
             attackType === "challenge"
