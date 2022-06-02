@@ -12,10 +12,11 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
       return response.status(200).end();
     }
 
+    const { APP_ID, PUSHER_KEY, PUSHER_SECRET } = process.env;
     const pusher = new Pusher({
-      appId: "1417021",
-      key: "26afa4c37fef2c3f93bc",
-      secret: "a1a2731de395c9ba5bfe",
+      appId: APP_ID,
+      key: PUSHER_KEY,
+      secret: PUSHER_SECRET,
       cluster: "us2",
       useTLS: true,
     });
