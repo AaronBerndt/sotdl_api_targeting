@@ -3,6 +3,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { rollAttackRoll, rollD20 } from "../utilities/rollDice";
 import microCors from "micro-cors";
 import { find } from "lodash";
+import Pusher = require("pusher");
 
 const cors = microCors();
 
@@ -11,6 +12,15 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
+
+    const pusher = new Pusher({
+      appId: "1417021",
+      key: "26afa4c37fef2c3f93bc",
+      secret: "a1a2731de395c9ba5bfe",
+      cluster: "us2",
+      useTLS: true,
+    });
+
     const {
       attackerId,
       targets,
@@ -56,6 +66,32 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
 
         const { [attributeTarget]: attributeDefendingWith } =
           targetData.characteristics;
+
+        await pusher.trigger(
+          "my-channel",
+          `Targeted with attack ${targetData._id}`,
+          {
+            attacker: attackerData.name,
+            attackType,
+            attackName: attackName,
+            name,
+            d20Result,
+            modifier,
+            bbResult,
+            attackDiceResult: total,
+            attackResult:
+              attackType === "challenge"
+                ? rollD20() >= 10 + (attributeDefendingWith - 10)
+                  ? "Miss"
+                  : "Hit"
+                : Number(total) > attributeDefendingWith
+                ? Number(total) >= 20 &&
+                  Number(total) - attributeDefendingWith >= 5
+                  ? "Critical Hit"
+                  : "Hit"
+                : "Miss",
+          }
+        );
 
         return {
           attacker: attackerData.name,

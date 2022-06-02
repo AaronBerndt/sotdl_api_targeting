@@ -7,6 +7,7 @@ import {
 import { rollD20, rollDamageRoll } from "../utilities/rollDice";
 import microCors from "micro-cors";
 import { find } from "lodash";
+import Pusher = require("pusher");
 
 const cors = microCors();
 
@@ -15,6 +16,15 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
     if (request.method === "OPTIONS") {
       return response.status(200).end();
     }
+
+    const pusher = new Pusher({
+      appId: "1417021",
+      key: "26afa4c37fef2c3f93bc",
+      secret: "a1a2731de395c9ba5bfe",
+      cluster: "us2",
+      useTLS: true,
+    });
+
     const { attackerId, targets, attackName, damageRoll } = request.body.data;
 
     const { data: attackerData } = await axios(
@@ -53,6 +63,17 @@ const handler = async (request: VercelRequest, response: VercelResponse) => {
           targetData = data[0];
           name = monster.name;
         }
+
+        await pusher.trigger(
+          "my-channel",
+          `Targeted with damage ${targetData._id}`,
+          {
+            attacker: attackerData.name,
+            attackName: attackName,
+            name,
+            damageResult,
+          }
+        );
 
         return {
           attacker: attackerData.name,

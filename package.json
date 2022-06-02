@@ -10,7 +10,8 @@
     "jest": "^27.0.5",
     "micro-cors": "^0.1.1",
     "mongodb": "^3.6.9",
-    "msw": "^0.30.0"
+    "msw": "^0.30.0",
+    "pusher": "^5.1.0-beta"
   },
   "scripts": {
     "run_dev": "tsc && vercel dev",
